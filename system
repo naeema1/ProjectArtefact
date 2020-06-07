@@ -1,0 +1,105 @@
+// This #include statement was automatically added by the Particle IDE.
+#include <RelayShield.h>
+
+#include "HC_SR04.h"
+
+
+
+
+double cm = 0.0;
+double inches = 0.0;
+
+int trigPin = A0;
+int echoPin = D0;
+char Distance[4];
+int led = D7;
+int relay= D3;
+int led1 = D6;
+
+
+/*
+Connect an HC-SR04 Range finder as follows:
+Spark   HC-SR04
+GND     GND
+5V      VCC
+D4      Trig
+D5      Voltage divider output - see below
+
+Echo --|
+       >
+       < 470 ohm resistor
+       >
+       ------ D5 on Spark
+       >
+       < 470 ohm resistor
+       >
+GND ---|
+
+Test it using curl like this:
+curl https://api.spark.io/v1/devices/<deviceid>/cm?access_token=<accesstoken>
+
+The default usable rangefinder is 10cm to 250cm. Outside of that range -1 is returned as the distance.
+
+You can change this range by supplying two extra parameters to the constructor of minCM and maxCM, like this:
+
+HC_SR04 rangefinder = HC_SR04(trigPin, echoPin, 5.0, 300.0);
+
+*/
+RelayShield myRelays;
+
+HC_SR04 rangefinder = HC_SR04(trigPin, echoPin);
+
+void setup() 
+
+{
+pinMode(led,OUTPUT);
+pinMode(led1,OUTPUT);
+pinMode(relay,OUTPUT);
+
+    Spark.variable("cm", &cm, DOUBLE);
+    Spark.variable("inches", &inches, DOUBLE);
+
+
+
+  
+		
+
+void loop() 
+{
+    cm = rangefinder.getDistanceCM();
+    inches = rangefinder.getDistanceInch();
+    delay(100);
+
+
+
+
+if(cm<15){
+    
+        digitalWrite(led, HIGH);
+         digitalWrite(led1, LOW);
+        
+       Spark.publish("distance", "less than 15cm", 60, PRIVATE );
+        digitalWrite(relay, LOW);
+        digitalWrite(relay, LOW);
+       delay (1000);
+        digitalWrite(relay, HIGH);
+      delay (500);
+        
+     
+ }
+ 
+  else if(cm>15 ){
+  
+    digitalWrite(relay, HIGH);
+    
+     
+       digitalWrite(led, LOW);
+        digitalWrite(led1, HIGH);
+     
+ }
+    
+     
+}
+
+
+
